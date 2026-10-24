@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kit-Kat Cat Café Digital Ordering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'milk': '#FDFBF7',         /* Creamy warm base */
+                        'tabby': '#F2ECE1',        /* Soft beige card backdrop */
+                        'whisker': '#2D2825',      /* Dark slate brown text */
+                        'amber': {
+                            100: '#FDECD2',
+                            500: '#D97706',
+                            600: '#B45309',
+                            700: '#8C3D00',        /* Ginger coat primary accent */
+                            800: '#6B2C00'
+                        },
+                        'calico': '#E86A33',       /* Calico orange feature tone */
+                        'paw-pink': {
+                            50: '#FFF5F5',
+                            100: '#FCE7F0',
+                            500: '#E0809C',        /* Gentle paw pad pink */
+                            600: '#C85C7D'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F8F4EE;
+        }
+    </style>
+</head>
+<body class="text-whisker min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+        <!-- Header -->
+        <header class="bg-amber-800 text-milk p-6 sm:p-8 rounded-2xl shadow-sm text-center border-b-4 border-calico">
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Kit-Kat Cat Café</h1>
+            <p class="text-amber-100 text-sm mt-1.5 font-medium">Purrfect food and drinks!</p>
+        </header>
+
+        <!-- Main Layout -->
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Menu Section -->
+            <section class="bg-milk p-6 rounded-2xl shadow-sm border border-tabby flex flex-col">
+                <div class="flex items-center justify-between pb-3 border-b border-tabby">
+                    <h2 class="text-xl font-bold text-whisker">Menu</h2>
+
+                </div>
+                
+                <div class="mt-4 mb-4">
+                    <input type="text" id="search-input" placeholder="Search menu items..." 
+                           class="w-full px-4 py-2.5 rounded-xl border border-tabby focus:outline-none focus:ring-2 focus:ring-amber-700 focus:border-transparent text-sm bg-tabby/40 transition text-whisker placeholder-whisker/50">
+                </div>
+
+                <div id="menu-list" class="space-y-3 flex-1 overflow-y-auto max-h-[480px] pr-1"></div>
+            </section>
+
+            <!-- Cart Section -->
+            <section class="bg-milk p-6 rounded-2xl shadow-sm border border-tabby flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between pb-3 border-b border-tabby">
+                        <h2 class="text-xl font-bold text-whisker">Your Cart</h2>
+                        <span class="text-xs text-whisker/60 font-medium">Order Items</span>
+                    </div>
+                    
+                    <!-- Alert Message -->
+                    <div id="alert-box" class="hidden my-3 p-3 text-xs font-semibold bg-paw-pink-50 text-paw-pink-600 rounded-xl border border-paw-pink-100"></div>
+
+                    <!-- Cart List -->
+                    <div id="cart-list" class="my-4 space-y-3 max-h-[220px] overflow-y-auto pr-1"></div>
+                </div>
+
+                <div>
+                    <!-- Promo Code -->
+                    
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="promo-input" placeholder="Promo code" 
+                               class="flex-1 px-3.5 py-2 rounded-xl border border-tabby text-sm focus:outline-none focus:ring-2 focus:ring-amber-700 bg-tabby/30 text-whisker placeholder-whisker/50">
+                        <button onclick="applyPromoCode()" 
+                                class="px-4 py-2 bg-whisker hover:bg-black text-milk text-sm font-semibold rounded-xl transition">
+                            Apply
+                        </button>
+                    </div>
+                    <div id="promo-msg" class="text-xs font-semibold mb-3 min-h-[16px]"></div>
+
+                    <!-- Order Totals -->
+                    <div class="bg-tabby/50 p-4 rounded-xl border border-tabby space-y-2 text-sm">
+                        <div class="flex justify-between text-whisker/80">
+                            <span>Subtotal</span>
+                            <span class="font-semibold text-whisker">$<span id="subtotal">0.00</span></span>
+                        </div>
+                        <div id="discount-row" class="hidden flex justify-between text-calico font-semibold">
+                            <span>Discount</span>
+                            <span>-$<span id="discount-amount">0.00</span></span>
+                        </div>
+                        <div class="flex justify-between text-whisker/80">
+                            <span>Tax (6%)</span>
+                            <span class="font-semibold text-whisker">$<span id="tax">0.00</span></span>
+                        </div>
+                        <div class="flex justify-between text-base font-bold text-whisker pt-2.5 border-t border-tabby">
+                            <span>Total</span>
+                            <span>$<span id="final-total">0.00</span></span>
+                        </div>
+                    </div>
+
+                    <button onclick="openCheckoutSummary()" 
+                            class="w-full mt-4 py-3 bg-amber-700 hover:bg-amber-800 text-milk font-bold rounded-xl shadow-sm transition active:scale-[0.99]">
+                        Checkout
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal Review Window -->
+    <div id="summary-modal" class="hidden fixed inset-0 bg-whisker/50 backdrop-blur-sm flex justify-center items-center p-4 z-50">
+        <div class="bg-milk p-6 sm:p-8 rounded-2xl max-w-md w-full shadow-2xl space-y-6 border border-tabby">
+            <div class="text-center">
+                <h3 class="text-xl font-bold text-whisker">Order Summary</h3>
+                <p class="text-xs text-whisker/60 mt-1">Review your order details before confirming</p>
+            </div>
+
+            <div id="summary-items" class="space-y-2 max-h-48 overflow-y-auto text-sm divide-y divide-tabby"></div>
+
+            <div class="flex justify-between text-lg font-bold text-whisker pt-3 border-t border-tabby">
+                <span>Final Total</span>
+                <span>$<span id="modal-final-total">0.00</span></span>
+            </div>
+
+            <div class="space-y-2">
+                <button onclick="confirmOrder()" 
+                        class="w-full py-3 bg-amber-700 hover:bg-amber-800 text-milk font-bold rounded-xl transition">
+                    Confirm Order
+                </button>
+                <button onclick="closeSummaryModal()" 
+                        class="w-full py-2.5 bg-tabby hover:bg-amber-100 text-whisker text-sm font-semibold rounded-xl transition">
+                    Back to Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const menu = {
+
+            "Coffee": { price: 3.50, stock: 5 },
+            "Muffin": { price: 2.75, stock: 3 },
+            "Bagel": { price: 4.00, stock: 4 },
+            "Cappuccino": { price: 5.00, stock: 35 },
+            "Orange Juice": { price: 1.99, stock: 23 },
+            "Boba tea": { price: 21.99, stock: 2 },
+            "Water Bottle": { price: 0.99, stock: 40 },
+            "Croissant": { price: 10.32, stock: 10 },
+            "Matcha": { price: 10.32, stock: 10 },
+            "Pumpkin Spice Latte": { price: 7.99, stock: 15 },
+            "Kit-Kat Milkshake": { price: 8.99, stock: 0 }
+        };
+
+        const cart = {};
+        let appliedDiscount = null;
+        let discountValue = 0;
+//shows messages after user completes purchase or does something wrong
+        function showAlert(msg) {
+            const box = document.getElementById("alert-box");
+            box.innerText = msg;
+            box.classList.remove("hidden");
+            setTimeout(() => box.classList.add("hidden"), 3000);
+        }
+//displays the menus using the menu list and displays cost and stock
+        function renderMenu() {
+            const list = document.getElementById("menu-list");
+            const query = document.getElementById("search-input").value.toLowerCase();
+            list.innerHTML = "";
+
+            for (let name in menu) {
+                if (!name.toLowerCase().includes(query)) continue;
+                const item = menu[name];
+                const outOfStock = item.stock === 0;
+
+                list.innerHTML += `
+                    <div class="flex justify-between items-center p-3.5 rounded-xl bg-tabby/40 border border-tabby">
+                        <div>
+                            <div class="font-semibold text-whisker text-sm">${name}</div>
+                            <div class="text-xs text-whisker/60 mt-0.5">$${item.price.toFixed(2)} · Stock: ${item.stock}</div>
+                        </div>
+                        <button onclick="addToCart('${name}')" ${outOfStock ? 'disabled' : ''} 
+                                class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition ${
+                                    outOfStock 
+                                    ? 'bg-tabby text-whisker/40 cursor-not-allowed' 
+                                    : 'bg-amber-800 text-milk hover:bg-amber-700 active:scale-95'
+                                }">
+                            ${outOfStock ? 'Sold Out' : 'Add'}
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        //This function adds the item selected by the user into the cart list and then updates the screen
+        function addToCart(name) {
+            if (menu[name].stock > 0) {
+                menu[name].stock--;
+                cart[name] = (cart[name] || 0) + 1;
+                renderMenu();
+                renderCart();
+            }
+        }
+        //This function removes the item selected by the user from the car list and then updates the screen
+        function removeFromCart(name) {
+            if (cart[name]) {
+                cart[name]--;
+                menu[name].stock++;
+                if (cart[name] === 0) delete cart[name];
+                renderMenu();
+                renderCart();
+            }
+        }
+//If the promo code entered matches one of the promo codes in the function then a discount value and type is assigned along with a message indicating if it was successful or not
+        function applyPromoCode() {
+            const code = document.getElementById("promo-input").value.trim().toUpperCase();
+            const msg = document.getElementById("promo-msg");
+
+            if (code === "FBLARULES") {
+                appliedDiscount = "percentage";
+                discountValue = 0.20;
+                msg.className = "text-xs font-semibold text-calico mb-3";
+                msg.innerText = "20% discount applied!";
+            } else if (code === "20GONE") {
+                appliedDiscount = "flat";
+                discountValue = 2.00;
+                msg.className = "text-xs font-semibold text-calico mb-3";
+                msg.innerText = "$2.00 discount applied!";
+            } else if (code === "SUPERSECRETEMPLOYEEDISCOUNT123!") {
+                appliedDiscount = "percentage";
+                discountValue = 0.70;
+                msg.className = "text-xs font-semibold text-calico mb-3";
+                msg.innerText = "70% employee discount applied!";
+            } else {
+                appliedDiscount = null;
+                discountValue = 0;
+                msg.className = "text-xs font-semibold text-paw-pink-600 mb-3";
+                msg.innerText = "Invalid promo code.";
+            }
+            renderCart();
+        }
+//updates the cart to show all items selected by the user along with their quantity
+        function renderCart() {
+            const list = document.getElementById("cart-list");
+            list.innerHTML = "";
+            let subtotal = 0;
+          //Prints the items the user ordered so far along with the quanitity of the items
+            const items = Object.keys(cart);
+            if (items.length === 0) {
+                list.innerHTML = `<p class="text-xs text-whisker/50 py-6 text-center italic">Your cart is empty.</p>`;
+            } else {
+                items.forEach(name => {
+                    const qty = cart[name];
+                    const itemTotal = menu[name].price * qty;
+                    subtotal += itemTotal;
+
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center py-2 border-b border-tabby/70 last:border-none text-sm">
+                            <div>
+                                <span class="font-semibold text-whisker">${name}</span>
+                                <span class="text-xs text-whisker/60 ml-1">x${qty}</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="font-semibold text-whisker">$${itemTotal.toFixed(2)}</span>
+                                <button onclick="removeFromCart('${name}')" 
+                                        
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+const totals = calculateTotals();
+
+document.getElementById("subtotal").innerText =
+    totals.subtotal.toFixed(2);
+
+document.getElementById("discount-amount").innerText =
+    totals.discountAmount.toFixed(2);
+
+document.getElementById("discount-row").classList.toggle(
+    "hidden",
+    totals.discountAmount === 0
+);
+
+document.getElementById("tax").innerText =
+    totals.tax.toFixed(2);
+
+document.getElementById("final-total").innerText =
+    totals.total.toFixed(2);
+        }
+//opens summary page, so that the user can checkout which contains all the information on their purchase
+        function openCheckoutSummary() {
+          //if the user tries to checkout without putting any items in their cart it will prompt the user to add items to their cart
+            if (Object.keys(cart).length === 0) {
+                showAlert("Please add items to your cart before checking out.");
+                return;
+            }
+
+            const itemsDiv = document.getElementById("summary-items");
+            itemsDiv.innerHTML = "";
+            let subtotal = 0;
+            // the items the user buys along with their quanitity and subtotal
+            for (let name in cart) {
+                const qty = cart[name];
+                const itemTotal = menu[name].price * qty;
+                subtotal += itemTotal;
+
+                itemsDiv.innerHTML += `
+                    <div class="flex justify-between py-2 text-whisker">
+                        <span>${name} <span class="text-whisker/50 font-normal">x${qty}</span></span>
+                        <span class="font-semibold">$${itemTotal.toFixed(2)}</span>
+                    </div>
+                `;
+            }
+        //displays final cost after discounts and taxes
+const totals = calculateTotals();
+
+document.getElementById("modal-final-total").innerText =
+    totals.total.toFixed(2);
+
+document.getElementById("summary-modal").classList.remove("hidden");
+        }
+
+        function closeSummaryModal() {
+            document.getElementById("summary-modal").classList.add("hidden");
+        }
+//Once the order is confirmed a message appears and everything in the cart is reset
+        function confirmOrder() {
+            showAlert("Order confirmed! Thank you.");
+            for (let name in cart) delete cart[name];
+            appliedDiscount = null;
+            discountValue = 0;
+            document.getElementById("promo-input").value = "";
+            document.getElementById("promo-msg").innerText = "";
+            
+            closeSummaryModal();
+            renderCart();
+        }
+//this function calculates the final price for an item
+function calculateTotals() {
+    let subtotal = 0;
+
+    // Calculate the subtotal of all items in the cart
+    for (let name in cart) {
+        subtotal += menu[name].price * cart[name];
+    }
+
+    // Calculate the discount
+    let discountAmount = 0;
+
+    if (appliedDiscount === "percentage") {
+        discountAmount = subtotal * discountValue;
+    } else if (appliedDiscount === "flat") {
+        discountAmount = Math.min(subtotal, discountValue);
+    }
+
+    // Calculate tax after applying the discount
+    const discountedSubtotal = subtotal - discountAmount;
+    const tax = discountedSubtotal * 0.06;
+    const total = discountedSubtotal + tax;
+
+    // Return all calculated values
+    return {
+        subtotal: subtotal,
+        discountAmount: discountAmount,
+        tax: tax,
+        total: total
+    };
+}
+
+        document.getElementById("search-input").addEventListener("input", renderMenu);
+        renderMenu();
+        renderCart();
+    </script>
+</body>
+</html>
