@@ -304,94 +304,58 @@ for (let name in menu) {
             renderCart();
         }
 //updates the cart to show all items selected by the user along with their quantity
-        function renderCart() {
-            const list = document.getElementById("cart-list");
-            list.innerHTML = "";
-            let subtotal = 0;
-          //Prints the items the user ordered so far along with the quanitity of the items
-            const items = Object.keys(cart);
-            if (items.length === 0) {
-                list.innerHTML = `<p class="text-xs text-whisker/50 py-6 text-center italic">Your cart is empty.</p>`;
-            } else {
-          //finds the subtotal by calculating the price of each item in the menu and multiplying it by the quantity of each item
-                items.forEach(name => {
-                    const qty = cart[name];
-                    const itemTotal = menu[name].price * qty;
-                    subtotal += itemTotal;
-          //displays all the items, quanitites and subtotal
-                    list.innerHTML += `
-                        <div class="flex justify-between items-center py-2 border-b border-tabby/70 last:border-none text-sm">
-                            <div>
-                                <span class="font-semibold text-whisker">${name}</span>
-                                <span class="text-xs text-whisker/60 ml-1">x${qty}</span>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <span class="font-semibold text-whisker">$${itemTotal.toFixed(2)}</span>
-                                <button onclick="removeFromCart('${name}')" 
-                                        
-                                    Remove
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-//calculates total
-const totals = calculateTotals(); 
-//displays final amount, discount amount and tax
-document.getElementById("subtotal").innerText =
-    totals.subtotal.toFixed(2);
+function renderCart() {
+    const list = document.getElementById("cart-list");
+    list.innerHTML = "";
+    let subtotal = 0;
+  
+    //Prints the items the user ordered so far along with the quantity of the items
+    const items = Object.keys(cart);
+    if (items.length === 0) {
+        list.innerHTML = `<p class="text-xs text-whisker/50 py-6 text-center italic">Your cart is empty.</p>`;
+    } else {
+        items.forEach(name => {
+            const qty = cart[name];
+            const itemTotal = menu[name].price * qty;
+            subtotal += itemTotal;
 
-document.getElementById("discount-amount").innerText =
-    totals.discountAmount.toFixed(2);
-
-document.getElementById("discount-row").classList.toggle(
-    "hidden",
-    totals.discountAmount === 0
-);
-
-document.getElementById("tax").innerText =
-    totals.tax.toFixed(2);
-
-document.getElementById("final-total").innerText =
-    totals.total.toFixed(2);
-        }
-//opens summary page, so that the user can checkout which contains all the information on their purchase
-        function openCheckoutSummary() {
-          //if the user tries to checkout without putting any items in their cart it will prompt the user to add items to their cart
-            if (Object.keys(cart).length === 0) {
-                showAlert("Please add items to your cart before checking out.");
-                return;
-            }
-
-            const itemsDiv = document.getElementById("summary-items");
-            itemsDiv.innerHTML = "";
-            let subtotal = 0;
-            // the items the user buys along with their quanitity and subtotal
-            for (let name in cart) {
-                const qty = cart[name];
-                const itemTotal = menu[name].price * qty;
-                subtotal += itemTotal;
-
-                itemsDiv.innerHTML += `
-                    <div class="flex justify-between py-2 text-whisker">
-                        <span>${name} <span class="text-whisker/50 font-normal">x${qty}</span></span>
-                        <span class="font-semibold">$${itemTotal.toFixed(2)}</span>
+            list.innerHTML += `
+                <div class="flex justify-between items-center py-2 border-b border-tabby/70 last:border-none text-sm">
+                    <div>
+                        <span class="font-semibold text-whisker">${name}</span>
+                        <span class="text-xs text-whisker/60 ml-1">x${qty}</span>
                     </div>
-                `;
-            }
-        //displays final cost after discounts and taxes
-const totals = calculateTotals();
+                    <div class="flex items-center gap-3">
+                        <span class="font-semibold text-whisker">$${itemTotal.toFixed(2)}</span>
+                        <button onclick="removeFromCart('${name}')" 
+                                class="px-2 py-1 text-xs bg-paw-pink-50 hover:bg-paw-pink-100 text-paw-pink-600 font-bold rounded-lg transition">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+    }
 
-document.getElementById("modal-final-total").innerText =
-    totals.total.toFixed(2);
+    const totals = calculateTotals();
 
-document.getElementById("summary-modal").classList.remove("hidden");
-        }
+    document.getElementById("subtotal").innerText =
+        totals.subtotal.toFixed(2);
 
-        function closeSummaryModal() {
-            document.getElementById("summary-modal").classList.add("hidden");
-        }
+    document.getElementById("discount-amount").innerText =
+        totals.discountAmount.toFixed(2);
+
+    document.getElementById("discount-row").classList.toggle(
+        "hidden",
+        totals.discountAmount === 0
+    );
+
+    document.getElementById("tax").innerText =
+        totals.tax.toFixed(2);
+
+    document.getElementById("final-total").innerText =
+        totals.total.toFixed(2);
+}
 //Once the order is confirmed a message appears and everything in the cart is reset
         function confirmOrder() {
 showAlert("Order confirmed! Thank you.");
@@ -473,6 +437,62 @@ function openSalesReportModal() {
 // hides the sales report
 function closeSalesReportModal() {
     document.getElementById("sales-report-modal").classList.add("hidden");
+}
+// Opens summary page so the user can checkout
+function openCheckoutSummary() {
+    // If the user tries to checkout without putting any items in their cart, prompt them
+    if (Object.keys(cart).length === 0) {
+        showAlert("Please add items to your cart before checking out.");
+        return;
+    }
+
+    const itemsDiv = document.getElementById("summary-items");
+    itemsDiv.innerHTML = "";
+    let subtotal = 0;
+    
+    // List the items the user buys along with their quantity and subtotal
+    for (let name in cart) {
+        const qty = cart[name];
+        const itemTotal = menu[name].price * qty;
+        subtotal += itemTotal;
+
+        itemsDiv.innerHTML += `
+            <div class="flex justify-between py-2 text-whisker">
+                <span>${name} <span class="text-whisker/50 font-normal">x${qty}</span></span>
+                <span class="font-semibold">$${itemTotal.toFixed(2)}</span>
+            </div>
+        `;
+    }
+    
+    // Displays final cost after discounts and taxes
+    const totals = calculateTotals();
+
+    document.getElementById("modal-final-total").innerText =
+        totals.total.toFixed(2);
+
+    document.getElementById("summary-modal").classList.remove("hidden");
+}
+function closeSummaryModal() {
+    document.getElementById("summary-modal").classList.add("hidden");
+}
+
+// Once the order is confirmed, records the sales, clears the cart, and resets everything
+function confirmOrder() {
+    showAlert("Order confirmed! Thank you.");
+    
+    // Record sold items to report tracker
+    for (let name in cart) {
+        salesTracker[name] = (salesTracker[name] || 0) + cart[name];
+        delete cart[name];
+    }
+
+    appliedDiscount = null;
+    discountValue = 0;
+    document.getElementById("promo-input").value = "";
+    document.getElementById("promo-msg").innerText = "";
+    
+    closeSummaryModal();
+    renderCart();
 }
 
         document.getElementById("search-input").addEventListener("input", renderMenu);
