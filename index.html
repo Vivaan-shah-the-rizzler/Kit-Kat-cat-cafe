@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
+        //creates color scheme for the app
         tailwind.config = {
             theme: {
                 extend: {
@@ -51,7 +52,7 @@
     <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Kit-Kat Cat Café</h1>
     <p class="text-amber-100 text-sm mt-1.5 font-medium">Purrfect food and drinks!</p>
     
-    <!-- Added Button -->
+    <!-- Sale Report Button -->
     <button onclick="openSalesReportModal()" 
             class="mt-3 sm:mt-0 sm:absolute sm:top-6 sm:right-6 bg-amber-700 hover:bg-amber-600 text-milk text-xs font-bold px-3.5 py-2 rounded-xl transition border border-amber-600">
         View Sales Report
@@ -132,7 +133,7 @@
         </main>
     </div>
 
-    <!-- Modal Review Window -->
+    <!-- Confirm Order Menu -->
     <div id="summary-modal" class="hidden fixed inset-0 bg-whisker/50 backdrop-blur-sm flex justify-center items-center p-4 z-50">
         <div class="bg-milk p-6 sm:p-8 rounded-2xl max-w-md w-full shadow-2xl space-y-6 border border-tabby">
             <div class="text-center">
@@ -198,6 +199,7 @@
 </div>
 
     <script>
+    //list containing all the items in the menu
     const menu = {
 
             "Coffee": { price: 3.50, stock: 5 },
@@ -212,8 +214,9 @@
             "Pumpkin Spice Latte": { price: 7.99, stock: 15 },
             "Kit-Kat Milkshake": { price: 8.99, stock: 0 }
         };
-
+        //empty list which will contain all the items the user adds to cart
         const cart = {};
+        //default values
         let appliedDiscount = null;
         let discountValue = 0;
         const salesTracker = {};
@@ -389,6 +392,7 @@ function calculateTotals() {
     if (appliedDiscount === "percentage") {
         discountAmount = subtotal * discountValue;
     } else if (appliedDiscount === "flat") {
+        //Math.min makes sure that the discount doesn't exceed the price
         discountAmount = Math.min(subtotal, discountValue);
     }
 
