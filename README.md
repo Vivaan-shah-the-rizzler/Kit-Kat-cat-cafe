@@ -55,8 +55,8 @@ checkout summary modal.
 JavaScript
 Used for menu rendering and search, cart and stock updates,
 promotional-code handling, tax and total calculations, feedback
-messages, and checkout interactions. The JavaScript is included in the
-<script> section of index.html.
+messages, and checkout interactions. The JavaScript is included in the <script> section of index.html.
+
 Tailwind CSS
 The project loads Tailwind CSS using the CDN script:
 
@@ -89,35 +89,7 @@ The full source code is provided in index.html. It includes the page
 markup, Tailwind configuration, menu and stock data, and the functions
 that operate the ordering interface.
 
-7. Important Implementation Notes
-- The menu, cart, stock values, and promotional discounts are stored
-  in browser memory. Refreshing the page resets the application to its
-  original data.
-- The listed stock is demonstration data; it is not synchronized with
-  a real inventory.
-- The tax rate is set to 6% in the JavaScript.
-- The order confirmation displays a message and clears the cart; it
-  does not submit an order to a server.
-- Tailwind CSS and the font are loaded from external services, so
-  their styling may not load when the device is offline.
-- The promo codes are visible in the client-side source code and are
-  for demonstration only.
-    
-8. Testing Checklist
-Before demonstrating the program, test the following:
-- [ ] The page loads and the menu appears.
-- [ ] Searching filters the menu items.
-- [ ] Adding an item updates the cart and stock count.
-- [ ] Sold-out items cannot be added.
-- [ ] Removing an item updates the cart and restores stock.
-- [ ] Each valid promo code applies the expected discount.
-- [ ] An invalid promo code displays an error message.
-- [ ] The subtotal, discount, tax, and total update correctly.
-- [ ] Checkout with an empty cart displays a message.
-- [ ] The order summary displays the correct total.
-- [ ] Confirming an order clears the cart and closes the summary.
-  
-9. Credits and Attribution Summary
+7. Credits and Attribution Summary
 - Tailwind CSS: https://tailwindcss.com/
 - Plus Jakarta Sans via Google Fonts:
   https://fonts.google.com/specimen/Plus+Jakarta+Sans
@@ -125,7 +97,4 @@ Before demonstrating the program, test the following:
   implementation, as described in Section 6.
 - Project-specific menu data and explanatory comments:
   Supplied/written by the project creator.
-This README describes the resources identified in the supplied source
-code. If any additional templates, icons, images, code snippets, or
-libraries are added later, update this section with their names,
-sources, and applicable license or attribution requirements.
+
