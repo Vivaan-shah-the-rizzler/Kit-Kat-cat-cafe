@@ -201,7 +201,7 @@
     <script>
     //list containing all the items in the menu
     const menu = {
-
+           "Chicken (for the cats)": { price: 3.99, stock: 24},
             "Coffee": { price: 3.50, stock: 5 },
             "Muffin": { price: 2.75, stock: 3 },
             "Bagel": { price: 4.00, stock: 4 },
@@ -209,10 +209,15 @@
             "Orange Juice": { price: 1.99, stock: 23 },
             "Boba tea": { price: 21.99, stock: 2 },
             "Water Bottle": { price: 0.99, stock: 40 },
-            "Croissant": { price: 10.32, stock: 10 },
-            "Matcha": { price: 10.32, stock: 10 },
+            "Croissant": { price: 10.99, stock: 10 },
+            "Matcha": { price: 10.99, stock: 10 },
             "Pumpkin Spice Latte": { price: 7.99, stock: 15 },
-            "Kit-Kat Milkshake": { price: 8.99, stock: 0 }
+            "Kit-Kat Milkshake": { price: 8.99, stock: 0 },
+            "Strawberry Banana Kiwi Smoothie": { price: 7.99, stock: 14 },
+            "Green Tea": { price: 8.99, stock: 4},
+            "Black Tea": { price: 8.99, stock: 5},
+            "Toast": { price: 2.99, stock: 10},
+            "Scambled eggs":{price:6.99, stock:21}
         };
         //empty list which will contain all the items the user adds to cart
         const cart = {};
@@ -359,24 +364,7 @@ function renderCart() {
     document.getElementById("final-total").innerText =
         totals.total.toFixed(2);
 }
-//Once the order is confirmed a message appears and everything in the cart is reset
-        function confirmOrder() {
-showAlert("Order confirmed! Thank you.");
 
-    // Record sold items to report tracker 
-    for (let name in cart) {
-        salesTracker[name] = (salesTracker[name] || 0) + cart[name];
-        delete cart[name];
-    }
-
-    appliedDiscount = null;
-    discountValue = 0;
-    document.getElementById("promo-input").value = "";
-    document.getElementById("promo-msg").innerText = "";
-
-    closeSummaryModal();
-    renderCart()
-        }
 //this function calculates the final price for an item
 function calculateTotals() {
     let subtotal = 0;
