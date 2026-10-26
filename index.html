@@ -46,11 +46,17 @@
 <body class="text-whisker min-h-screen p-4 sm:p-6 md:p-8">
 
     <div class="max-w-5xl mx-auto space-y-6">
-        <!-- Header -->
-        <header class="bg-amber-800 text-milk p-6 sm:p-8 rounded-2xl shadow-sm text-center border-b-4 border-calico">
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Kit-Kat Cat Café</h1>
-            <p class="text-amber-100 text-sm mt-1.5 font-medium">Purrfect food and drinks!</p>
-        </header>
+<!-- Header -->
+<header class="bg-amber-800 text-milk p-6 sm:p-8 rounded-2xl shadow-sm text-center border-b-4 border-calico relative">
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Kit-Kat Cat Café</h1>
+    <p class="text-amber-100 text-sm mt-1.5 font-medium">Purrfect food and drinks!</p>
+    
+    <!-- Added Button -->
+    <button onclick="openSalesReportModal()" 
+            class="mt-3 sm:mt-0 sm:absolute sm:top-6 sm:right-6 bg-amber-700 hover:bg-amber-600 text-milk text-xs font-bold px-3.5 py-2 rounded-xl transition border border-amber-600">
+        View Sales Report
+    </button>
+</header>
 
         <!-- Main Layout -->
         <main class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -153,6 +159,43 @@
             </div>
         </div>
     </div>
+    <!-- Sales Report Modal Window -->
+<div id="sales-report-modal" class="hidden fixed inset-0 bg-whisker/50 backdrop-blur-sm flex justify-center items-center p-4 z-50">
+    <div class="bg-milk p-6 sm:p-8 rounded-2xl max-w-lg w-full shadow-2xl space-y-5 border border-tabby">
+        <div class="flex justify-between items-center pb-3 border-b border-tabby">
+            <div>
+                <h3 class="text-xl font-bold text-whisker">Sales & Summary Report</h3>
+                <p class="text-xs text-whisker/60 mt-0.5">Item sales breakdown and total revenue</p>
+            </div>
+            <button onclick="closeSalesReportModal()" class="text-whisker/50 hover:text-whisker font-bold text-lg px-2">✕</button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 text-center">
+            <div class="bg-tabby/40 p-3 rounded-xl border border-tabby">
+                <span class="block text-xs text-whisker/60 font-medium">Total Items Sold</span>
+                <span id="report-total-qty" class="text-lg font-bold text-whisker">0</span>
+            </div>
+            <div class="bg-tabby/40 p-3 rounded-xl border border-tabby">
+                <span class="block text-xs text-whisker/60 font-medium">Total Revenue</span>
+                <span class="text-lg font-bold text-amber-700">$<span id="report-total-revenue">0.00</span></span>
+            </div>
+        </div>
+
+        <div class="border border-tabby rounded-xl overflow-hidden">
+            <div class="bg-tabby/60 grid grid-cols-3 p-2.5 text-xs font-bold text-whisker border-b border-tabby">
+                <span>Item Name</span>
+                <span class="text-center">Units Sold</span>
+                <span class="text-right">Total Spent</span>
+            </div>
+            <div id="sales-report-list" class="max-h-56 overflow-y-auto divide-y divide-tabby text-xs"></div>
+        </div>
+
+        <button onclick="closeSalesReportModal()" 
+                class="w-full py-2.5 bg-tabby hover:bg-amber-100 text-whisker text-sm font-semibold rounded-xl transition">
+            Close Report
+        </button>
+    </div>
+</div>
 
     <script>
     const menu = {
@@ -173,6 +216,10 @@
         const cart = {};
         let appliedDiscount = null;
         let discountValue = 0;
+        const salesTracker = {};
+for (let name in menu) {
+    salesTracker[name] = 0;
+}
 //shows messages after user completes purchase or does something wrong
         function showAlert(msg) {
             const box = document.getElementById("alert-box");
@@ -266,11 +313,12 @@
             if (items.length === 0) {
                 list.innerHTML = `<p class="text-xs text-whisker/50 py-6 text-center italic">Your cart is empty.</p>`;
             } else {
+          //finds the subtotal by calculating the price of each item in the menu and multiplying it by the quantity of each item
                 items.forEach(name => {
                     const qty = cart[name];
                     const itemTotal = menu[name].price * qty;
                     subtotal += itemTotal;
-
+          //displays all the items, quanitites and subtotal
                     list.innerHTML += `
                         <div class="flex justify-between items-center py-2 border-b border-tabby/70 last:border-none text-sm">
                             <div>
@@ -288,9 +336,9 @@
                     `;
                 });
             }
-
-const totals = calculateTotals();
-
+//calculates total
+const totals = calculateTotals(); 
+//displays final amount, discount amount and tax
 document.getElementById("subtotal").innerText =
     totals.subtotal.toFixed(2);
 
@@ -346,15 +394,21 @@ document.getElementById("summary-modal").classList.remove("hidden");
         }
 //Once the order is confirmed a message appears and everything in the cart is reset
         function confirmOrder() {
-            showAlert("Order confirmed! Thank you.");
-            for (let name in cart) delete cart[name];
-            appliedDiscount = null;
-            discountValue = 0;
-            document.getElementById("promo-input").value = "";
-            document.getElementById("promo-msg").innerText = "";
-            
-            closeSummaryModal();
-            renderCart();
+showAlert("Order confirmed! Thank you.");
+
+    // Record sold items to report tracker 
+    for (let name in cart) {
+        salesTracker[name] = (salesTracker[name] || 0) + cart[name];
+        delete cart[name];
+    }
+
+    appliedDiscount = null;
+    discountValue = 0;
+    document.getElementById("promo-input").value = "";
+    document.getElementById("promo-msg").innerText = "";
+
+    closeSummaryModal();
+    renderCart()
         }
 //this function calculates the final price for an item
 function calculateTotals() {
@@ -386,6 +440,39 @@ function calculateTotals() {
         tax: tax,
         total: total
     };
+}
+//displays the sale report
+function openSalesReportModal() {
+  //opens sales report
+    const reportList = document.getElementById("sales-report-list");
+    reportList.innerHTML = "";
+
+    let totalQty = 0;
+    let totalRevenue = 0;
+  //set qty sold as the amount of each item in the car list and multiplies that quantity by the price
+    for (let name in menu) {
+        const qtySold = salesTracker[name] || 0;
+        const itemSpent = qtySold * menu[name].price;
+  //adds the quantity sold to the total quantity and item spent to the toal revenue
+        totalQty += qtySold;
+        totalRevenue += itemSpent;
+//displays the info gathered
+        reportList.innerHTML += `
+            <div class="grid grid-cols-3 p-2.5 text-whisker items-center">
+                <span class="font-semibold">${name}</span>
+                <span class="text-center">${qtySold}</span>
+                <span class="text-right font-semibold">$${itemSpent.toFixed(2)}</span>
+            </div>
+        `;
+    }
+
+    document.getElementById("report-total-qty").innerText = totalQty;
+    document.getElementById("report-total-revenue").innerText = totalRevenue.toFixed(2);
+    document.getElementById("sales-report-modal").classList.remove("hidden");
+}
+// hides the sales report
+function closeSalesReportModal() {
+    document.getElementById("sales-report-modal").classList.add("hidden");
 }
 
         document.getElementById("search-input").addEventListener("input", renderMenu);
